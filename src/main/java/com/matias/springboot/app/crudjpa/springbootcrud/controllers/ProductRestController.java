@@ -1,15 +1,21 @@
 package com.matias.springboot.app.crudjpa.springbootcrud.controllers;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.matias.springboot.app.crudjpa.springbootcrud.entities.Product;
 import com.matias.springboot.app.crudjpa.springbootcrud.services.ProductServiceImpl;
+
+import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,25 +48,34 @@ public class ProductRestController {
         return ResponseEntity.notFound().build();
     }
 
+    // el BindingResult no puede ir al final, tiene que ir despues del objeto
     @PostMapping
-    public ResponseEntity<Product> create(@RequestBody Product product){
+    public ResponseEntity<?> create(@Valid @RequestBody Product product, BindingResult result){
+        if(result.hasFieldErrors()){
+            return validation(result);
+        }
+
         Product newProduct = productService.save(product);
         return ResponseEntity.status(HttpStatus.CREATED).body(newProduct);
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Product> update(@PathVariable Long id, @RequestBody Product product){
-        product.setId(id);
-        Product newProduct = productService.save(product);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newProduct);
+    public ResponseEntity<?> update(@Valid @RequestBody Product product, BindingResult result, @PathVariable Long id){
+        if(result.hasFieldErrors()){
+            return validation(result);
+        }
+        
+        Optional<Product> optionalProduct = productService.update(id, product);
+        if(optionalProduct.isPresent()){
+            return ResponseEntity.status(HttpStatus.CREATED).body(optionalProduct.orElseThrow());
+        }
+
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Product> remove(@PathVariable Long id){
-        Product product = new Product();
-        product.setId(id);
-        Optional<Product> optionalProd = productService.delete(product);
-
+        Optional<Product> optionalProd = productService.delete(id);
         if(optionalProd.isPresent()){
             return ResponseEntity.ok(optionalProd.orElseThrow());
         }
@@ -68,4 +83,13 @@ public class ProductRestController {
         return ResponseEntity.notFound().build();
     }
     
+    private ResponseEntity<?> validation(BindingResult result) {
+        // creamos un mapa para almacenar los errores
+        Map<String, Object> errors = new HashMap<>(); 
+        result.getFieldErrors().forEach(err -> {
+            errors.put(err.getField(), "El campo " + err.getField() + " " + err.getDefaultMessage());
+        });
+        // los devolvemos con badRequest, que sería un 400
+        return ResponseEntity.badRequest().body(errors);
+    }
 }
