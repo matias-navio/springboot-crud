@@ -18,14 +18,16 @@ public class Product {
     private Long id;
 
     // no puede ser nulo y ademas entre 3 y 15 caracteres
-    @NotBlank
-    @Size(min = 3, max = 15)
+    @NotBlank(message = "{NotBlank.product.name}")
+    @Size(min = 3, max = 15, message = "{Size.product.name}")
     private String name;
+
     // no puede ser nulo
-    @NotNull
+    @NotNull(message = "{NotNull.product.price}")
     private Integer price;
+
     // no puede ser vacio
-    @NotBlank
+    @NotBlank(message = "{NotBlank.product.description}")
     private String description;
 
     
