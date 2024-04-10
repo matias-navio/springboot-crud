@@ -11,9 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.matias.springboot.app.crudjpa.springbootcrud.entities.Product;
 import com.matias.springboot.app.crudjpa.springbootcrud.services.ProductServiceImpl;
+import com.matias.springboot.app.crudjpa.springbootcrud.validation.ProductValidation;
 
 import jakarta.validation.Valid;
 
@@ -33,6 +33,9 @@ public class ProductRestController {
     @Autowired
     private ProductServiceImpl productService;
 
+    @Autowired
+    private ProductValidation validation;
+
     @GetMapping("/products")
     public List<Product> list(){
         return productService.findAll();
@@ -51,6 +54,7 @@ public class ProductRestController {
     // el BindingResult no puede ir al final, tiene que ir despues del objeto
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody Product product, BindingResult result){
+        validation.validate(product, result);
         if(result.hasFieldErrors()){
             return validation(result);
         }
@@ -61,6 +65,7 @@ public class ProductRestController {
 
     @PutMapping("/update/{id}")
     public ResponseEntity<?> update(@Valid @RequestBody Product product, BindingResult result, @PathVariable Long id){
+        validation.validate(product, result);
         if(result.hasFieldErrors()){
             return validation(result);
         }
