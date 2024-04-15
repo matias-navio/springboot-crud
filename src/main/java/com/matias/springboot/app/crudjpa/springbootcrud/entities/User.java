@@ -2,6 +2,10 @@ package com.matias.springboot.app.crudjpa.springbootcrud.entities;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
@@ -23,26 +28,33 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
+    @NotBlank(message = "no puede estar vacio!")
     @Column(unique = true)
     private String username;
 
-    @NotBlank
+    @NotBlank(message = "no puede estar vacio!")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
-    // no es con cascade porque el role ya existe y esta guardado en la base de datos
     @ManyToMany
     @JoinTable(
         name = "users_roles",
         joinColumns = @JoinColumn(name = "user_id"),
         inverseJoinColumns = @JoinColumn(name = "role_id"),
-        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "role_id"})
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "role_id"})}
     )
     private List<Role> roles;
 
-    // con esta anotación le decimos a JPA que este atributo no es una columna que persiste en la base de datos
     @Transient
-    private boolean admin;
+    private boolean isAdmin;
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private boolean enabled;
+
+    @PrePersist
+    public void prePersist(){
+        enabled = true;
+    }
 
     public Long getId() {
         return id;
@@ -77,16 +89,21 @@ public class User {
     }
 
     public boolean isAdmin() {
-        return admin;
+        return isAdmin;
     }
 
-    public void setAdmin(boolean admin) {
-        this.admin = admin;
+    public void setAdmin(boolean isAdmin) {
+        this.isAdmin = isAdmin;
     }
 
-    @Override
-    public String toString() {
-        return "{id=" + id + ", username=" + username + ", password=" + password + ", roles=" + roles + "}";
+    public boolean isEnabled() {
+        return enabled;
     }
 
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+    
+
+    
 }

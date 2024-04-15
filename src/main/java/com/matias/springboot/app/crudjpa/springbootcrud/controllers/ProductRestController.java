@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 
 @RestController
-@RequestMapping("/crud")
+@RequestMapping("/crud/products")
 public class ProductRestController {
 
     @Autowired
@@ -36,12 +36,12 @@ public class ProductRestController {
     @Autowired
     private ProductValidation validation;
 
-    @GetMapping("/products")
+    @GetMapping("/list")
     public List<Product> list(){
         return productService.findAll();
     }
 
-    @GetMapping("/product/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<?> findOne(@PathVariable Long id){
         Optional<Product> prodOptional = productService.findById(id);
         if(prodOptional.isPresent()){

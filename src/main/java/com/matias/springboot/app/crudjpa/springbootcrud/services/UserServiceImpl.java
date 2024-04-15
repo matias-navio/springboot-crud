@@ -18,40 +18,37 @@ import com.matias.springboot.app.crudjpa.springbootcrud.repositories.UserReposit
 public class UserServiceImpl implements IUserService{
 
     @Autowired
-    private UserRepository repository;
-
+    private UserRepository userRepository;
     @Autowired
     private RoleRepository roleRepository;
-
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Transactional(readOnly = true)
     @Override
+    @Transactional(readOnly = true)
     public List<User> findAll() {
-        return (List<User>) repository.findAll();
+        return (List<User>) userRepository.findAll();
     }
 
-    @Transactional
     @Override
+    @Transactional
     public User create(User user) {
-
+        // buscamos ROLE_USER
         Optional<Role> optionalRoleUser = roleRepository.findByName("ROLE_USER");
         List<Role> roles = new ArrayList<>();
-        
-        // si esta presente el ROLE_USER lo agregamos a la lista roles 
+        // si existe lo agregamos a la lista
         optionalRoleUser.ifPresent(roles::add);
-
+        // verificamos si el user es admin
         if(user.isAdmin()){
+            // si lo es, buscamos el ROLE_ADMIN y lo agregamos a la lista 
             Optional<Role> optionalRoleAdmin = roleRepository.findByName("ROLE_ADMIN");
-            // si el ROLE_ADMIN está presente lo agregamos a la lista
             optionalRoleAdmin.ifPresent(roles::add);
         }
 
         user.setRoles(roles);
-        // le pasamos el password que viene del request y lo codificamos
+        // obtenemos el password que viene de lrequest y lo encriptamos
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return repository.save(user);
+        return userRepository.save(user);
     }
 
 }
