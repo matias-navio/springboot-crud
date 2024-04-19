@@ -9,4 +9,6 @@ public interface IUserService {
     List<User> findAll();
 
     User create(User user);
+
+    boolean existsByUsername(String username);
 }

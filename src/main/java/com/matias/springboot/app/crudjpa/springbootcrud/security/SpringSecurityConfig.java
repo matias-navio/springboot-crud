@@ -1,9 +1,8 @@
 package com.matias.springboot.app.crudjpa.springbootcrud.security;
 
-import java.lang.reflect.Method;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -24,8 +23,9 @@ public class SpringSecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
 
-        return http.authorizeRequests((authz) -> 
-                authz.requestMatchers("/crud/users/**").permitAll()
+        return http.authorizeRequests((authz) -> authz
+                    .requestMatchers(HttpMethod.GET ,"/crud/users/**").permitAll() // permite solo metodos get
+                    .requestMatchers(HttpMethod.POST ,"/crud/users/register").permitAll() // permite solo metodos post pero el register
                     .anyRequest()
                     .authenticated()
                 )

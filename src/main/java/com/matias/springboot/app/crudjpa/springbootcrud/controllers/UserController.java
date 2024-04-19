@@ -36,8 +36,15 @@ public class UserController {
         if(result.hasFieldErrors()){
             return validation(result);
         }
-
         return ResponseEntity.status(201).body(userService.create(user));
+    }
+
+    // crear unicamente users con ROLE_USER
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@Valid @RequestBody User user, BindingResult result){
+        // seteamos el admin en false, en caso de que lo hayan puesto en true
+        user.setAdmin(false);
+        return save(user, result);
     }
 
     private ResponseEntity<?> validation(BindingResult result) {

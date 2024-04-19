@@ -2,9 +2,9 @@ package com.matias.springboot.app.crudjpa.springbootcrud.entities;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.matias.springboot.app.crudjpa.springbootcrud.validation.ExistByUsername;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -28,6 +28,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ExistByUsername
     @NotBlank(message = "no puede estar vacio!")
     @Column(unique = true)
     private String username;
@@ -36,6 +37,7 @@ public class User {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
+    @JsonIgnoreProperties({"users", "handler", "hibernateLazyInitializer"})
     @ManyToMany
     @JoinTable(
         name = "users_roles",
@@ -46,7 +48,8 @@ public class User {
     private List<Role> roles;
 
     @Transient
-    private boolean isAdmin;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private boolean admin;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private boolean enabled;
@@ -89,11 +92,11 @@ public class User {
     }
 
     public boolean isAdmin() {
-        return isAdmin;
+        return admin;
     }
 
-    public void setAdmin(boolean isAdmin) {
-        this.isAdmin = isAdmin;
+    public void setAdmin(boolean admin) {
+        this.admin = admin;
     }
 
     public boolean isEnabled() {
