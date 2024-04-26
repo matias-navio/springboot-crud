@@ -31,6 +31,11 @@ public class UserServiceImpl implements IUserService{
     }
 
     @Override
+    public Optional<User> findByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
+
+    @Override
     @Transactional
     public User create(User user) {
         // buscamos ROLE_USER

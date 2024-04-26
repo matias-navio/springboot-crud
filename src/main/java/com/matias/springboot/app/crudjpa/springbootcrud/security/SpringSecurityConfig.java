@@ -25,12 +25,16 @@ public class SpringSecurityConfig {
 
         return http.authorizeRequests((authz) -> authz
                     .requestMatchers(HttpMethod.GET ,"/crud/users/**").permitAll() // permite solo metodos get
-                    .requestMatchers(HttpMethod.POST ,"/crud/users/register").permitAll() // permite solo metodos post pero el register
+                    .requestMatchers(HttpMethod.POST ,"/crud/users/register").hasAnyRole("ROLE_ADMIN") // permite solo metodos post pero el register
                     .anyRequest()
-                    .authenticated()
+                    .denyAll()
                 )
-                .csrf(config -> config.disable())
-                .sessionManagement(managmanet -> managmanet.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .csrf(config -> config.disable()) // desabilita csrf
+                // determina una sesion sin estado, es decir, no vamos a guardar la sesion en memoria
+                .sessionManagement(managmanet -> managmanet.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) 
                 .build();
+
+
+        
     }
 }
