@@ -11,12 +11,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.matias.springboot.app.crudjpa.springbootcrud.entities.User;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -32,8 +32,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     
     private AuthenticationManager authenticationManager;
 
-    
-
     // generamos el constructor con la clase que extendemos
     public JwtAuthenticationFilter(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
@@ -46,7 +44,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
      */
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-
+        
         // objetos vacios de user, password y username que necesitamos para el token
         User user = null;
         String username = null;
@@ -62,7 +60,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             user = data.readValue(request.getInputStream(), User.class);
             username = user.getUsername();
             password = user.getPassword();
-
         } catch (StreamReadException e) {
             e.printStackTrace();
         } catch (DatabindException e) {
@@ -71,9 +68,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             e.printStackTrace();
         }
 
-        // creamos el token con el username y password que viene del request y esta guardado el DB, para autenticarlo
+        /* 
+            esto crea un intento de autenticación del user con el password y el username
+            el cual luego se verifica si está en la DB
+        */ 
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
-
+        
         // se retorna un authenticate
         return authenticationManager.authenticate(token);
     }
@@ -89,7 +89,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
              * 
              * se importa User de spring security
              */
-            User user = (User) authResult.getPrincipal();
+            org.springframework.security.core.userdetails.User user = (org.springframework.security.core.userdetails.User) authResult.getPrincipal();
             String username = user.getUsername();
             Collection<? extends GrantedAuthority> roles = user.getAuthorities();
 
@@ -97,8 +97,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
              * Construimos un claim con los roles del user
              * para despues agregarlo al token
              */
-            Claims claims = Jwts.claims().build();
-            claims.put("roles", roles);
+            Claims claims = Jwts.claims()
+                .add("authorities", roles)
+                .add("username", username)
+                .build();
 
             /*
              *  Esto lo copiamos del repo de JWT, crea el token
