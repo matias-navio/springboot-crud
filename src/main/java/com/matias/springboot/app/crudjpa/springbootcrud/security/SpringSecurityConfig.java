@@ -37,12 +37,21 @@ public class SpringSecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
 
-        return http.authorizeRequests((authz) -> {
-                    authz.requestMatchers(HttpMethod.GET, "/crud/users/**").permitAll();
-                    authz.requestMatchers(HttpMethod.POST, "/crud/users/register").hasAnyRole("ROLE_ADMIN");
-                    authz.anyRequest().denyAll();
-                }      
-                )
+        return http.authorizeRequests((authz) -> authz.requestMatchers(HttpMethod.GET, "/crud/users/**").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/crud/users/register")
+                        .permitAll()
+                    .requestMatchers(HttpMethod.POST, "/crud/users/save")
+                        .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/crud/products/save")
+                        .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/crud/products/list", "/crud/products/{id}")
+                        .hasAnyRole("ADMIN", "USER")
+                    .requestMatchers(HttpMethod.PUT, "/crud/products/update/{id}")
+                        .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/crud/products/delete/{id}")
+                        .hasRole("ADMIN")
+                    .anyRequest().authenticated())
+
                     // agregamos filtro de autenticación
                     .addFilter(new JwtAuthenticationFilter(authenticationManager()))
                     // agregamos filtro de validación

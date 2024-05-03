@@ -98,7 +98,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
              * para despues agregarlo al token
              */
             Claims claims = Jwts.claims()
-                .add("authorities", roles)
+                .add("authorities", new ObjectMapper().writeValueAsString(roles))
                 .add("username", username)
                 .build();
 

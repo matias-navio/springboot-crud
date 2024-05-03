@@ -52,7 +52,7 @@ public class ProductRestController {
     }
 
     // el BindingResult no puede ir al final, tiene que ir despues del objeto
-    @PostMapping
+    @PostMapping("/save")
     public ResponseEntity<?> create(@Valid @RequestBody Product product, BindingResult result){
         validation.validate(product, result);
         if(result.hasFieldErrors()){

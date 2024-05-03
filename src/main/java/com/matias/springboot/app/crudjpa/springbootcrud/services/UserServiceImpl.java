@@ -51,7 +51,7 @@ public class UserServiceImpl implements IUserService{
         }
 
         user.setRoles(roles);
-        // obtenemos el password que viene de lrequest y lo encriptamos
+        // obtenemos el password que viene del request y lo encriptamos
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }

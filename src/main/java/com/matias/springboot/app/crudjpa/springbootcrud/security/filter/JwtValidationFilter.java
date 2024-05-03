@@ -43,6 +43,8 @@ public class JwtValidationFilter extends BasicAuthenticationFilter{
          *  nos salimos ya que no es correcto continuar
          */
         if(header == null || !header.startsWith(PREFIX_TOKEN)){
+            // por mas falle, tiene que continuar con las cadena de filtros
+            chain.doFilter(request, response);
             return;
         }
 
@@ -57,6 +59,7 @@ public class JwtValidationFilter extends BasicAuthenticationFilter{
          *  y manejamos un error en caso de que no existe
          */
         try {
+            // con esto validamos el token y obtenemos solo el payload
             Claims claims = Jwts
                 .parser()
                 .verifyWith(SECRET_KEY)
@@ -64,17 +67,15 @@ public class JwtValidationFilter extends BasicAuthenticationFilter{
                 .parseSignedClaims(token)
                 .getPayload();
 
-            // dos maneras distintas de obtener el username
+            // obtenemos el username
             String username = claims.getSubject();
-            // tenemos que llamarlo de la misma manera que lo nombramos en el filter
-            // String username2 = (String) claims.get("username");
-
-            Object authoritiesClaims = claims.get("ahutorities"); // obtenemos los roles de la misma manera que arriba
+            // obtenemos los roles 
+            Object authoritiesClaims = claims.get("authorities"); 
 
             /*
              *  Convertimos los roles que obtenemos en formato JSON
              *  en este caso a una lista de SimpleGrantedAuthority
-             */
+            */
             Collection<? extends GrantedAuthority> authorities = java.util.Arrays.asList(
                 new ObjectMapper()
                 // con esto facilitamos la deserealización de authoritiesClaims como objeto JSON
