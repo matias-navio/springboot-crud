@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -24,12 +27,19 @@ public class Role {
     @Column(unique = true)
     private String name;
 
+    @JsonProperty(access = Access.WRITE_ONLY)
     @JsonIgnoreProperties({"roles", "handler", "hibernateLazyInitializer"})
     @ManyToMany(mappedBy = "roles")
     private List<User> users;
+
+    @JsonProperty(access = Access.WRITE_ONLY)
+    @JsonIgnoreProperties({"roles", "handler", "hibernateLazyInitializer"})
+    @ManyToMany(mappedBy = "roles")
+    private List<Endpoint> endpoints;
     
     public Role(){
         users = new ArrayList<>();
+        endpoints = new ArrayList<>();
     }
 
     public Long getId() {
@@ -55,6 +65,14 @@ public class Role {
     public void setUsers(List<User> users) {
         this.users = users;
     }
+
+    public List<Endpoint> getEndpoints() {
+        return endpoints;
+    }
+
+    public void setEndpoints(List<Endpoint> endpoints) {
+        this.endpoints = endpoints;
+    } 
 
     @Override
     public int hashCode() {
@@ -92,5 +110,6 @@ public class Role {
             return false;
         return true;
     }
+
     
 }

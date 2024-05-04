@@ -15,6 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import com.matias.springboot.app.crudjpa.springbootcrud.security.filter.JwtAuthenticationFilter;
 import com.matias.springboot.app.crudjpa.springbootcrud.security.filter.JwtValidationFilter;
+import com.matias.springboot.app.crudjpa.springbootcrud.services.EnpointServiceImpl;
 
 @Configuration
 @EnableWebSecurity 
@@ -22,6 +23,9 @@ public class SpringSecurityConfig {
 
     @Autowired
     private AuthenticationConfiguration configuration;
+
+    @Autowired
+    private EnpointServiceImpl enpointService;
 
     @Bean
     AuthenticationManager authenticationManager() throws Exception{
@@ -37,7 +41,9 @@ public class SpringSecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
 
-        return http.authorizeRequests((authz) -> authz.requestMatchers(HttpMethod.GET, "/crud/users/**").permitAll()
+        return http.authorizeRequests((authz) -> authz
+                    .requestMatchers(HttpMethod.GET, "/crud/users/**")
+                        .permitAll()
                     .requestMatchers(HttpMethod.POST, "/crud/users/register")
                         .permitAll()
                     .requestMatchers(HttpMethod.POST, "/crud/users/save")
@@ -50,6 +56,10 @@ public class SpringSecurityConfig {
                         .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/crud/products/delete/{id}")
                         .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/crud/endpoint/save")
+                        .hasAnyRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/crud/endpoint/list")
+                        .hasAnyRole("ADMIN")
                     .anyRequest().authenticated())
 
                     // agregamos filtro de autenticación
