@@ -33,13 +33,13 @@ public class EnpointServiceImpl implements IEndpointService{
     @Override
     public Endpoint create(Endpoint endpoint) {
 
-        Optional<Role> optionalRoleAdmin = roleRepository.findByName("ROLE_ADMIN");
+        Optional<Role> optionalRoleAdmin = roleRepository.findByName("ADMIN");
         Set<Role> roles = new HashSet<>();
 
         optionalRoleAdmin.ifPresent(roles::add);
 
         if(endpoint.isRoleUser()){
-            Optional<Role> optionalRoleUser = roleRepository.findByName("ROLE_USER");
+            Optional<Role> optionalRoleUser = roleRepository.findByName("USER");
             optionalRoleUser.ifPresent(roles::add);
         }
 

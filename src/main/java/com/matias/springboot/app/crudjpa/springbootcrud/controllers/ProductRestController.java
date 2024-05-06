@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,11 +38,13 @@ public class ProductRestController {
     private ProductValidation validation;
 
     @GetMapping("/list")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public List<Product> list(){
         return productService.findAll();
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<?> findOne(@PathVariable Long id){
         Optional<Product> prodOptional = productService.findById(id);
         if(prodOptional.isPresent()){
@@ -53,6 +56,7 @@ public class ProductRestController {
 
     // el BindingResult no puede ir al final, tiene que ir despues del objeto
     @PostMapping("/save")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> create(@Valid @RequestBody Product product, BindingResult result){
         validation.validate(product, result);
         if(result.hasFieldErrors()){
@@ -64,6 +68,7 @@ public class ProductRestController {
     }
 
     @PutMapping("/update/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> update(@Valid @RequestBody Product product, BindingResult result, @PathVariable Long id){
         validation.validate(product, result);
         if(result.hasFieldErrors()){
@@ -79,6 +84,7 @@ public class ProductRestController {
     }
 
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Product> remove(@PathVariable Long id){
         Optional<Product> optionalProd = productService.delete(id);
         if(optionalProd.isPresent()){

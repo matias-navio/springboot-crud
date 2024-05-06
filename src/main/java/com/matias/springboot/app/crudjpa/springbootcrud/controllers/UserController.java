@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,12 +27,14 @@ public class UserController {
     private UserServiceImpl userService;
 
     @GetMapping("/list")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public List<User> listUser(){
         
         return userService.findAll();
     }
 
     @PostMapping("/save")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> save(@Valid @RequestBody User user, BindingResult result){
         if(result.hasFieldErrors()){
             return validation(result);
@@ -41,6 +44,7 @@ public class UserController {
 
     // crear unicamente users con ROLE_USER
     @PostMapping("/register")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<?> register(@Valid @RequestBody User user, BindingResult result){
         // seteamos el admin en false, en caso de que lo hayan puesto en true
         user.setAdmin(false);

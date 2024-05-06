@@ -36,7 +36,7 @@ public class JpaUserDetailsService implements UserDetailsService{
          * y con el metodo map pasamos esa lista de roles a una lista SimpleGrantedAuthority
          */
         List<GrantedAuthority> authorities = user.getRoles().stream()
-            .map(role -> new SimpleGrantedAuthority(role.getName()))
+            .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
             .collect(Collectors.toList());
 
         // importamos la clase User pero de Spring Security, importamos el paquete porque ya tenemos la clase User nuestra

@@ -1,11 +1,15 @@
 package com.matias.springboot.app.crudjpa.springbootcrud.security;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -13,12 +17,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.matias.springboot.app.crudjpa.springbootcrud.entities.Endpoint;
 import com.matias.springboot.app.crudjpa.springbootcrud.security.filter.JwtAuthenticationFilter;
 import com.matias.springboot.app.crudjpa.springbootcrud.security.filter.JwtValidationFilter;
 import com.matias.springboot.app.crudjpa.springbootcrud.services.EnpointServiceImpl;
 
 @Configuration
 @EnableWebSecurity 
+@EnableMethodSecurity(prePostEnabled = true)
 public class SpringSecurityConfig {
 
     @Autowired
@@ -41,35 +47,31 @@ public class SpringSecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
 
-        return http.authorizeRequests((authz) -> authz
-                    .requestMatchers(HttpMethod.GET, "/crud/users/**")
-                        .permitAll()
-                    .requestMatchers(HttpMethod.POST, "/crud/users/register")
-                        .permitAll()
-                    .requestMatchers(HttpMethod.POST, "/crud/users/save")
-                        .hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.POST, "/crud/products/save")
-                        .hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.GET, "/crud/products/list", "/crud/products/{id}")
-                        .hasAnyRole("ADMIN", "USER")
-                    .requestMatchers(HttpMethod.PUT, "/crud/products/update/{id}")
-                        .hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.DELETE, "/crud/products/delete/{id}")
-                        .hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.POST, "/crud/endpoint/save")
-                        .hasAnyRole("ADMIN")
-                    .requestMatchers(HttpMethod.GET, "/crud/endpoint/list")
-                        .hasAnyRole("ADMIN")
-                    .anyRequest().authenticated())
+        List<Endpoint> publicEndpoints = enpointService.findAll().stream()
+            .filter(endpoint -> endpoint.getRoles().stream()
+            .anyMatch(role -> role.getName().equals("USER")))
+            .collect(Collectors.toList());
 
-                    // agregamos filtro de autenticación
-                    .addFilter(new JwtAuthenticationFilter(authenticationManager()))
-                    // agregamos filtro de validación
-                    .addFilter(new JwtValidationFilter(authenticationManager()))
-                    .csrf(config -> config.disable()) // desabilita csrf
-                    // determina una sesion sin estado, es decir, no vamos a guardar la sesion en memoria
-                    .sessionManagement(managmanet -> managmanet.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) 
-                    .build();   
+        List<Endpoint> privateEndpoints = enpointService.findAll().stream()
+            .filter(endpoint -> endpoint.getRoles().stream()
+            .anyMatch(role -> role.getName().equals("ADMIN")))
+            .collect(Collectors.toList());        
+
+        http.authorizeRequests((auth) -> 
+            auth.requestMatchers(HttpMethod.GET, "/crud/users/list").permitAll()
+                .requestMatchers(HttpMethod.GET, "/crud/products/list").permitAll()
+                .requestMatchers(HttpMethod.GET, "/crud/products/{id}").permitAll()
+                .anyRequest().authenticated())
+
+                // agregamos filtro de autenticación
+                .addFilter(new JwtAuthenticationFilter(authenticationManager()))
+                // agregamos filtro de validación
+                .addFilter(new JwtValidationFilter(authenticationManager()))
+                .csrf(config -> config.disable()) // desabilita csrf
+                // determina una sesion sin estado, es decir, no vamos a guardar la sesion en memoria
+                .sessionManagement(managmanet -> managmanet.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        return http.build();
     }
 }
 

@@ -39,14 +39,14 @@ public class UserServiceImpl implements IUserService{
     @Transactional
     public User create(User user) {
         // buscamos ROLE_USER
-        Optional<Role> optionalRoleUser = roleRepository.findByName("ROLE_USER");
+        Optional<Role> optionalRoleUser = roleRepository.findByName("USER");
         List<Role> roles = new ArrayList<>();
         // si existe lo agregamos a la lista
         optionalRoleUser.ifPresent(roles::add);
         // verificamos si el user es admin
         if(user.isAdmin()){
             // si lo es, buscamos el ROLE_ADMIN y lo agregamos a la lista 
-            Optional<Role> optionalRoleAdmin = roleRepository.findByName("ROLE_ADMIN");
+            Optional<Role> optionalRoleAdmin = roleRepository.findByName("ADMIN");
             optionalRoleAdmin.ifPresent(roles::add);
         }
 

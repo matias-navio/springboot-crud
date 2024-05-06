@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,11 +30,13 @@ public class EndpointController {
     private EnpointServiceImpl enpointService;
 
     @GetMapping("/list")
+    @PreAuthorize("hasRole('ADMIN')")
     public List<Endpoint> listAll(){
         return enpointService.findAll();
     }
 
     @PostMapping("/save")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> create(@Valid @RequestBody Endpoint endpoint, BindingResult result){
         if(result.hasFieldErrors()){
             return validation(result);
@@ -43,6 +46,7 @@ public class EndpointController {
     }
 
     @DeleteMapping("/detele/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> delete(@PathVariable Long id){
         Optional<Endpoint> optionalEndpoint = enpointService.delete(id);
         if(optionalEndpoint.isPresent()){
