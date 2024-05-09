@@ -19,18 +19,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 @Entity
 @Table(name = "endpoints")
 public class Endpoint {
@@ -56,4 +45,48 @@ public class Endpoint {
     @Transient
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private boolean roleUser;
+
+    public Endpoint(Long id, String path, Set<Role> roles, boolean roleUser) {
+        this.id = id;
+        this.path = path;
+        this.roles = roles;
+        this.roleUser = roleUser;
+    }
+
+    public Endpoint(){}
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+
+    public boolean isRoleUser() {
+        return roleUser;
+    }
+
+    public void setRoleUser(boolean roleUser) {
+        this.roleUser = roleUser;
+    }
+
+    
+    
 }

@@ -66,27 +66,38 @@ public class SpringSecurityConfig {
 
         http.authorizeRequests((auth) -> 
             auth.requestMatchers(HttpMethod.GET, "/crud/users/list").permitAll()
-                .requestMatchers(HttpMethod.GET, "/crud/products/list").permitAll()
-                .requestMatchers(HttpMethod.GET, "/crud/products/{id}").permitAll()
-                .anyRequest().authenticated())
+            .requestMatchers(HttpMethod.GET, "/crud/products/list").permitAll()
+            .requestMatchers(HttpMethod.GET, "/crud/products/{id}").permitAll()
+            .anyRequest().authenticated())
 
-                // agregamos filtro de autenticación
-                .addFilter(new JwtAuthenticationFilter(authenticationManager()))
-                // agregamos filtro de validación
-                .addFilter(new JwtValidationFilter(authenticationManager()))
-                .csrf(config -> config.disable()) // desabilita csrf
-                // agregamos los cors a Spring Security
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                // determina una sesion sin estado, es decir, no vamos a guardar la sesion en memoria
-                .sessionManagement(managmanet -> managmanet.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        //     for(Endpoint endpoint : publicEndpoints){
+        //         auth.requestMatchers(endpoint.getPath()).permitAll();
+        //     }
 
-        return http.build();
-    }
+        //     for(Endpoint endpoint : privateEndpoints){
+        //         auth.requestMatchers(endpoint.getPath()).hasRole("ADMIN");
+        //     }
+        //     auth.anyRequest().authenticated();
+        // })
 
-    @Bean
-    CorsConfigurationSource corsConfigurationSource(){
-        CorsConfiguration config = new CorsConfiguration();
-
+            
+            // agregamos filtro de autenticación
+            .addFilter(new JwtAuthenticationFilter(authenticationManager()))
+            // agregamos filtro de validación
+            .addFilter(new JwtValidationFilter(authenticationManager()))
+            .csrf(config -> config.disable()) // desabilita csrf
+            // agregamos los cors a Spring Security
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            // determina una sesion sin estado, es decir, no vamos a guardar la sesion en memoria
+            .sessionManagement(managmanet -> managmanet.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+            
+            return http.build();
+        }
+        
+        @Bean
+        CorsConfigurationSource corsConfigurationSource(){
+            CorsConfiguration config = new CorsConfiguration();
+            
         // establece todos los patrones de origenes permitos para los CORS
         config.setAllowedOriginPatterns(Arrays.asList("*"));
         // establece los métodos HTTP que permite en el origen
