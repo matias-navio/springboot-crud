@@ -15,13 +15,14 @@ public class ProductValidation implements Validator{
     
     // con este método asignamos la clase que queremos validar
     @Override
-    public boolean supports(Class<?> clazz) {
+    public boolean supports(@SuppressWarnings("null") Class<?> clazz) {
         return Product.class.isAssignableFrom(clazz);
     }
 
     // el tipo Object hace referencia al objeto Product en este caso y Errors a BindingResult
     @Override
-    public void validate(Object target, Errors errors) {
+    @SuppressWarnings("null")
+    public void validate( Object target,  Errors errors) {
         Product product = (Product) target;
 
         // ValidationUtils.rejectIfEmptyOrWhitespace(errors, "name", "NotBlank.product.isRequired");
@@ -30,8 +31,6 @@ public class ProductValidation implements Validator{
 
         if(product.getName() == null || product.getName().isBlank()){
             errors.rejectValue("name", null,  MESSAGE_REQUIRED);
-        }else if(product.getName().length() < 3 || product.getName().length() > 15){
-            errors.rejectValue("name", null,  "debe tener entre 3 y 15 caracteres");
         }
 
     }

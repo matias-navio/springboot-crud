@@ -11,6 +11,7 @@
 	<groupId>com.matias.springboot.app.jpacrud</groupId>
 	<artifactId>springboot-crud</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>war</packaging>
 	<name>springboot-crud</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
@@ -27,9 +28,17 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<!-- agregamos esta dependencia para poder realizar el deploy en apache tomcat -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-tomcat</artifactId>
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
@@ -38,6 +47,7 @@
 			<scope>runtime</scope>
 			<optional>true</optional>
 		</dependency>
+
 		<dependency>
 			<groupId>com.mysql</groupId>
 			<artifactId>mysql-connector-j</artifactId>
@@ -77,6 +87,8 @@
 	</dependencies>
 
 	<build>
+		<!-- esto le asigna el nombre del artifactId a nuestro archivo war que se va a crear -->
+		<finalName>${artifactId}</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
